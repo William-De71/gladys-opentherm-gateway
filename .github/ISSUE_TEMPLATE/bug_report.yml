@@ -1,0 +1,50 @@
+name: Bug report
+description: Something does not work as described in the documentation.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. The **Test the gateway** button of the configuration often tells where it stops: paste its message below.
+  - type: input
+    id: gladys-version
+    attributes:
+      label: Gladys version
+      description: Settings → System.
+      placeholder: '5.3.0'
+    validations:
+      required: true
+  - type: input
+    id: integration-version
+    attributes:
+      label: Integration version
+      description: Integrations → OpenTherm Gateway, Supervision tab.
+      placeholder: '0.1.0'
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Boiler, thermostat and gateway
+      description: The brand and model of the boiler and of the room thermostat, the gateway (NodoShop board or USB/serial) and its PIC firmware version, how it is reached (OTGW-firmware TCP port, ser2net…).
+      placeholder: 'Remeha Calenta + Honeywell T4R, NodoShop OTGW, PIC firmware 6.5, OTGW-firmware port 25238'
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what you expected
+      description: What does the Test button say (firmware, mode, values seen)? Does OTmonitor or the OTGW web page show the same values? Is the gateway in gateway mode (PR=M)? Turn on the detailed log and paste the lines around the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Logs of the integration (Logs tab of the integration page), ideally with the SDK debug logs: add the environment variable `DEBUG=gladys-integration-sdk` to the container, reproduce, then copy the lines.
+      render: text

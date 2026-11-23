@@ -1,0 +1,839 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "OpenTherm Gateway",
+  "description": {
+    "en": "OpenTherm boilers and thermostats through the OpenTherm Gateway (OTGW), locally.",
+    "fr": "Chaudières et thermostats OpenTherm via l’OpenTherm Gateway (OTGW), en local.",
+    "de": "OpenTherm-Heizkessel und -Thermostate über das OpenTherm Gateway (OTGW), lokal.",
+    "es": "Calderas y termostatos OpenTherm con el OpenTherm Gateway (OTGW), en local."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/william-de71/gladys-opentherm-gateway:0.1.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/William-De71/gladys-opentherm-gateway/main/cover.jpg",
+  "categories": ["climate", "energy"],
+  "keywords": [
+    "OpenTherm",
+    "OTGW",
+    "Nodo",
+    "NodoShop",
+    "boiler",
+    "chaudière",
+    "Remeha",
+    "De Dietrich",
+    "Intergas",
+    "thermostat"
+  ],
+  "transports": ["local"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Your OpenTherm Gateway",
+        "fr": "Votre OpenTherm Gateway",
+        "de": "Ihr OpenTherm Gateway",
+        "es": "Su OpenTherm Gateway"
+      },
+      "description": {
+        "en": "The OpenTherm Gateway (OTGW, by Schelte Bron) sits on the two wires between your OpenTherm room thermostat and your boiler. Gladys reads it through its serial port on the network: on a NodoShop OTGW board, turn on “Legacy TCP port 25238” in its web page; on a USB or serial gateway, share the port with ser2net (raw mode). Everything stays on your local network. Not affiliated with the OpenTherm Association, NodoShop or the boiler brands.",
+        "fr": "L’OpenTherm Gateway (OTGW, de Schelte Bron) se branche sur les deux fils entre votre thermostat d’ambiance OpenTherm et votre chaudière. Gladys la lit par son port série sur le réseau : sur une carte OTGW NodoShop, activez « Legacy TCP port 25238 » dans sa page web ; sur une passerelle USB ou série, partagez le port avec ser2net (mode raw). Tout reste sur votre réseau local. Sans lien avec l’OpenTherm Association, NodoShop ni les marques de chaudières.",
+        "de": "Das OpenTherm Gateway (OTGW, von Schelte Bron) sitzt an den zwei Drähten zwischen Ihrem OpenTherm-Raumthermostat und Ihrem Heizkessel. Gladys liest es über seine serielle Schnittstelle im Netzwerk: Auf einer NodoShop-OTGW-Platine schalten Sie auf deren Webseite „Legacy TCP port 25238“ ein; bei einem USB- oder seriellen Gateway geben Sie die Schnittstelle mit ser2net frei (raw-Modus). Alles bleibt in Ihrem lokalen Netzwerk. Nicht mit der OpenTherm Association, NodoShop oder den Kesselmarken verbunden.",
+        "es": "El OpenTherm Gateway (OTGW, de Schelte Bron) se conecta a los dos cables entre su termostato de ambiente OpenTherm y su caldera. Gladys lo lee por su puerto serie en la red: en una placa OTGW de NodoShop, active «Legacy TCP port 25238» en su página web; en una pasarela USB o serie, comparta el puerto con ser2net (modo raw). Todo se queda en su red local. Sin relación con la OpenTherm Association, NodoShop ni las marcas de calderas."
+      },
+      "links": [
+        {
+          "url": "https://github.com/William-De71/gladys-opentherm-gateway/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d’installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
+        },
+        {
+          "url": "https://otgw.tclcode.com/",
+          "label": {
+            "en": "OpenTherm Gateway",
+            "fr": "OpenTherm Gateway",
+            "de": "OpenTherm Gateway",
+            "es": "OpenTherm Gateway"
+          }
+        }
+      ]
+    },
+    {
+      "key": "host",
+      "type": "string",
+      "default": "",
+      "label": {
+        "en": "Address of the gateway",
+        "fr": "Adresse de la passerelle",
+        "de": "Adresse des Gateways",
+        "es": "Dirección de la pasarela"
+      },
+      "placeholder": {
+        "en": "192.168.1.40",
+        "fr": "192.168.1.40",
+        "de": "192.168.1.40",
+        "es": "192.168.1.40"
+      },
+      "description": {
+        "en": "The IP address or the name of the OTGW board, or of the machine running ser2net (“localhost” does not work: Gladys runs the integration in its own container).",
+        "fr": "L’adresse IP ou le nom de la carte OTGW, ou de la machine où tourne ser2net (« localhost » ne fonctionne pas : Gladys fait tourner l’intégration dans son propre conteneur).",
+        "de": "Die IP-Adresse oder der Name der OTGW-Platine oder des Rechners mit ser2net („localhost“ funktioniert nicht: Gladys führt die Integration in einem eigenen Container aus).",
+        "es": "La dirección IP o el nombre de la placa OTGW, o del equipo con ser2net («localhost» no funciona: Gladys ejecuta la integración en su propio contenedor)."
+      }
+    },
+    {
+      "key": "port",
+      "type": "number",
+      "default": 25238,
+      "label": {
+        "en": "TCP port",
+        "fr": "Port TCP",
+        "de": "TCP-Port",
+        "es": "Puerto TCP"
+      },
+      "description": {
+        "en": "25238 on a NodoShop OTGW board; the port you chose in ser2net otherwise.",
+        "fr": "25238 sur une carte OTGW NodoShop ; sinon le port choisi dans ser2net.",
+        "de": "25238 auf einer NodoShop-OTGW-Platine; sonst der in ser2net gewählte Port.",
+        "es": "25238 en una placa OTGW de NodoShop; si no, el puerto elegido en ser2net."
+      }
+    },
+    {
+      "key": "control",
+      "type": "section",
+      "label": {
+        "en": "Changing the setpoint",
+        "fr": "Modifier la consigne",
+        "de": "Sollwert ändern",
+        "es": "Cambiar la consigna"
+      },
+      "description": {
+        "en": "When you change the room setpoint in Gladys, the gateway imposes it on the thermostat (remote override). The thermostat must support it: most modulating OpenTherm thermostats do. The gateway must be in gateway mode, not monitor mode.",
+        "fr": "Quand vous changez la consigne ambiante dans Gladys, la passerelle l’impose au thermostat (dérogation à distance). Le thermostat doit le permettre : c’est le cas de la plupart des thermostats OpenTherm modulants. La passerelle doit être en mode passerelle, pas en mode moniteur.",
+        "de": "Wenn Sie die Raum-Solltemperatur in Gladys ändern, gibt das Gateway sie dem Thermostat vor (Fernübersteuerung). Der Thermostat muss das unterstützen, wie die meisten modulierenden OpenTherm-Thermostate. Das Gateway muss im Gateway-Modus sein, nicht im Monitor-Modus.",
+        "es": "Cuando cambia la consigna ambiente en Gladys, la pasarela la impone al termostato (anulación remota). El termostato debe admitirlo, como la mayoría de los termostatos OpenTherm modulantes. La pasarela debe estar en modo pasarela, no en modo monitor."
+      }
+    },
+    {
+      "key": "override_mode",
+      "type": "select",
+      "default": "temporary",
+      "label": {
+        "en": "Setpoint set from Gladys",
+        "fr": "Consigne fixée depuis Gladys",
+        "de": "In Gladys gesetzter Sollwert",
+        "es": "Consigna fijada desde Gladys"
+      },
+      "options": [
+        {
+          "value": "temporary",
+          "label": {
+            "en": "Until the next program change",
+            "fr": "Jusqu’au prochain changement de programme",
+            "de": "Bis zur nächsten Programmänderung",
+            "es": "Hasta el próximo cambio de programa"
+          }
+        },
+        {
+          "value": "constant",
+          "label": {
+            "en": "Until cancelled",
+            "fr": "Jusqu’à annulation",
+            "de": "Bis zur Aufhebung",
+            "es": "Hasta que se anule"
+          }
+        }
+      ]
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "default": "en",
+      "label": {
+        "en": "Language of the names and texts",
+        "fr": "Langue des noms et des textes",
+        "de": "Sprache der Namen und Texte",
+        "es": "Idioma de los nombres y textos"
+      },
+      "description": {
+        "en": "Gladys does not tell integrations the language of its users: choose the one of the device and feature names and of the error messages.",
+        "fr": "Gladys n’indique pas aux intégrations la langue de ses utilisateurs : choisissez celle des noms des appareils et des fonctionnalités et des messages d’erreur.",
+        "de": "Gladys teilt Integrationen die Sprache der Benutzer nicht mit: Wählen Sie die der Geräte- und Funktionsnamen und der Fehlermeldungen.",
+        "es": "Gladys no indica a las integraciones el idioma de sus usuarios: elija el de los nombres de dispositivos y funciones y de los mensajes de error."
+      },
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
+    },
+    {
+      "key": "troubleshooting",
+      "type": "section",
+      "label": {
+        "en": "Troubleshooting",
+        "fr": "Dépannage",
+        "de": "Fehlerbehebung",
+        "es": "Solución de problemas"
+      },
+      "description": {
+        "en": "The integration writes what it does in the Logs tab of this page: connection to the gateway, lost connection with the reason, values found, commands accepted or refused.",
+        "fr": "L’intégration écrit ce qu’elle fait dans l’onglet Journaux de cette page : connexion à la passerelle, connexion perdue avec la raison, valeurs trouvées, commandes acceptées ou refusées.",
+        "de": "Die Integration schreibt im Tab Logs dieser Seite, was sie tut: Verbindung zum Gateway, verlorene Verbindung mit Grund, gefundene Werte, angenommene oder abgelehnte Befehle.",
+        "es": "La integración escribe lo que hace en la pestaña Logs de esta página: conexión con la pasarela, conexión perdida con el motivo, valores encontrados, comandos aceptados o rechazados."
+      }
+    },
+    {
+      "key": "debug_logs",
+      "type": "boolean",
+      "default": false,
+      "label": {
+        "en": "Detailed log",
+        "fr": "Journal détaillé",
+        "de": "Ausführliches Log",
+        "es": "Registro detallado"
+      },
+      "description": {
+        "en": "Also writes every command sent to the gateway and its answer. Turn it on to look into a problem, then off again.",
+        "fr": "Écrit aussi chaque commande envoyée à la passerelle et sa réponse. À activer pour étudier un problème, puis à désactiver.",
+        "de": "Schreibt zusätzlich jeden an das Gateway gesendeten Befehl und seine Antwort. Zur Untersuchung eines Problems einschalten, danach wieder aus.",
+        "es": "Escribe también cada comando enviado a la pasarela y su respuesta. Actívelo para estudiar un problema y desactívelo después."
+      }
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "timeout_seconds": 60,
+      "label": {
+        "en": "Test the gateway",
+        "fr": "Tester la passerelle",
+        "de": "Gateway testen",
+        "es": "Probar la pasarela"
+      },
+      "description": {
+        "en": "Connects to the gateway, reads its firmware and mode, and lists the OpenTherm values seen between thermostat and boiler.",
+        "fr": "Se connecte à la passerelle, lit son firmware et son mode, et liste les valeurs OpenTherm vues entre thermostat et chaudière.",
+        "de": "Verbindet sich mit dem Gateway, liest Firmware und Modus und listet die zwischen Thermostat und Kessel gesehenen OpenTherm-Werte.",
+        "es": "Se conecta a la pasarela, lee su firmware y su modo, y lista los valores OpenTherm vistos entre termostato y caldera."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "boiler",
+      "icon": "thermometer",
+      "label": {
+        "en": "Boiler",
+        "fr": "Chaudière",
+        "de": "Heizkessel",
+        "es": "Caldera"
+      },
+      "description": {
+        "en": "Temperatures, modulation, pressure, burner, fault, imposed setpoint.",
+        "fr": "Températures, modulation, pression, brûleur, défaut, consigne imposée.",
+        "de": "Temperaturen, Modulation, Druck, Brenner, Störung, Vorgabe.",
+        "es": "Temperaturas, modulación, presión, quemador, avería, consigna impuesta."
+      }
+    },
+    {
+      "key": "history",
+      "icon": "trending-up",
+      "label": {
+        "en": "Boiler curves",
+        "fr": "Courbes chaudière",
+        "de": "Kesselverlauf",
+        "es": "Curvas de caldera"
+      },
+      "description": {
+        "en": "Flow, return, room and hot water temperatures over time.",
+        "fr": "Températures départ, retour, ambiante et eau chaude dans le temps.",
+        "de": "Vorlauf-, Rücklauf-, Raum- und Warmwassertemperatur im Verlauf.",
+        "es": "Temperaturas de impulsión, retorno, ambiente y agua caliente en el tiempo."
+      },
+      "settings": [
+        {
+          "key": "period",
+          "type": "select",
+          "default": "last-day",
+          "label": {
+            "en": "Period",
+            "fr": "Période",
+            "de": "Zeitraum",
+            "es": "Periodo"
+          },
+          "options": [
+            {
+              "value": "last-day",
+              "label": {
+                "en": "24 hours",
+                "fr": "24 heures",
+                "de": "24 Stunden",
+                "es": "24 horas"
+              }
+            },
+            {
+              "value": "last-three-days",
+              "label": {
+                "en": "3 days",
+                "fr": "3 jours",
+                "de": "3 Tage",
+                "es": "3 días"
+              }
+            },
+            {
+              "value": "last-week",
+              "label": {
+                "en": "7 days",
+                "fr": "7 jours",
+                "de": "7 Tage",
+                "es": "7 días"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "boiler_fault",
+      "label": {
+        "en": "The boiler reports a fault",
+        "fr": "La chaudière signale un défaut",
+        "de": "Der Kessel meldet eine Störung",
+        "es": "La caldera indica una avería"
+      },
+      "description": {
+        "en": "The fault bit of the boiler goes on, with its fault code when the boiler gives one.",
+        "fr": "Le bit de défaut de la chaudière s’allume, avec son code de défaut quand la chaudière le donne.",
+        "de": "Das Störungsbit des Kessels geht an, mit seinem Störungscode, wenn der Kessel einen liefert.",
+        "es": "El bit de avería de la caldera se activa, con su código de avería cuando la caldera lo da."
+      },
+      "variables": [
+        {
+          "key": "oem_fault_code",
+          "type": "number",
+          "label": {
+            "en": "Boiler fault code",
+            "fr": "Code de défaut de la chaudière",
+            "de": "Störungscode des Kessels",
+            "es": "Código de avería de la caldera"
+          }
+        },
+        {
+          "key": "faults",
+          "type": "string",
+          "label": {
+            "en": "Fault description",
+            "fr": "Description du défaut",
+            "de": "Störungsbeschreibung",
+            "es": "Descripción de la avería"
+          }
+        },
+        {
+          "key": "low_water_pressure",
+          "type": "boolean",
+          "label": {
+            "en": "Low water pressure",
+            "fr": "Pression d’eau basse",
+            "de": "Wasserdruck zu niedrig",
+            "es": "Presión de agua baja"
+          }
+        },
+        {
+          "key": "gas_flame_fault",
+          "type": "boolean",
+          "label": {
+            "en": "Gas or flame fault",
+            "fr": "Défaut gaz ou flamme",
+            "de": "Gas- oder Flammenfehler",
+            "es": "Avería de gas o llama"
+          }
+        },
+        {
+          "key": "air_pressure_fault",
+          "type": "boolean",
+          "label": {
+            "en": "Air pressure fault",
+            "fr": "Défaut de pression d’air",
+            "de": "Luftdruckfehler",
+            "es": "Avería de presión de aire"
+          }
+        },
+        {
+          "key": "water_over_temperature",
+          "type": "boolean",
+          "label": {
+            "en": "Water too hot",
+            "fr": "Eau trop chaude",
+            "de": "Wasser zu heiß",
+            "es": "Agua demasiado caliente"
+          }
+        }
+      ]
+    },
+    {
+      "key": "boiler_fault_cleared",
+      "label": {
+        "en": "The boiler fault is cleared",
+        "fr": "Le défaut de la chaudière disparaît",
+        "de": "Die Kesselstörung ist behoben",
+        "es": "La avería de la caldera desaparece"
+      },
+      "description": {
+        "en": "The fault bit of the boiler goes off.",
+        "fr": "Le bit de défaut de la chaudière s’éteint.",
+        "de": "Das Störungsbit des Kessels geht aus.",
+        "es": "El bit de avería de la caldera se desactiva."
+      },
+      "variables": [
+        {
+          "key": "oem_fault_code",
+          "type": "number",
+          "label": {
+            "en": "Boiler fault code",
+            "fr": "Code de défaut de la chaudière",
+            "de": "Störungscode des Kessels",
+            "es": "Código de avería de la caldera"
+          }
+        }
+      ]
+    },
+    {
+      "key": "service_requested",
+      "label": {
+        "en": "The boiler asks for maintenance",
+        "fr": "La chaudière demande un entretien",
+        "de": "Der Kessel fordert Wartung an",
+        "es": "La caldera pide mantenimiento"
+      },
+      "description": {
+        "en": "The boiler sets its service request flag.",
+        "fr": "La chaudière lève son indicateur de demande d’entretien.",
+        "de": "Der Kessel setzt sein Wartungsanforderungs-Flag.",
+        "es": "La caldera activa su indicador de petición de mantenimiento."
+      },
+      "variables": [
+        {
+          "key": "oem_fault_code",
+          "type": "number",
+          "label": {
+            "en": "Boiler fault code",
+            "fr": "Code de défaut de la chaudière",
+            "de": "Störungscode des Kessels",
+            "es": "Código de avería de la caldera"
+          }
+        }
+      ]
+    },
+    {
+      "key": "thermostat_disconnected",
+      "label": {
+        "en": "The thermostat is disconnected",
+        "fr": "Le thermostat est déconnecté",
+        "de": "Der Thermostat ist getrennt",
+        "es": "El termostato está desconectado"
+      },
+      "description": {
+        "en": "The gateway no longer sees an OpenTherm thermostat on its terminals.",
+        "fr": "La passerelle ne voit plus de thermostat OpenTherm sur ses bornes.",
+        "de": "Das Gateway sieht an seinen Klemmen keinen OpenTherm-Thermostat mehr.",
+        "es": "La pasarela ya no ve un termostato OpenTherm en sus bornes."
+      },
+      "variables": [
+        {
+          "key": "address",
+          "type": "string",
+          "label": {
+            "en": "Gateway address",
+            "fr": "Adresse de la passerelle",
+            "de": "Gateway-Adresse",
+            "es": "Dirección de la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "gateway_offline",
+      "label": {
+        "en": "The gateway stops answering",
+        "fr": "La passerelle ne répond plus",
+        "de": "Das Gateway antwortet nicht mehr",
+        "es": "La pasarela deja de responder"
+      },
+      "description": {
+        "en": "No connection to the gateway for 3 minutes (board off, network, port closed).",
+        "fr": "Aucune connexion à la passerelle pendant 3 minutes (carte éteinte, réseau, port fermé).",
+        "de": "3 Minuten lang keine Verbindung zum Gateway (Platine aus, Netzwerk, Port geschlossen).",
+        "es": "Ninguna conexión con la pasarela durante 3 minutos (placa apagada, red, puerto cerrado)."
+      },
+      "variables": [
+        {
+          "key": "address",
+          "type": "string",
+          "label": {
+            "en": "Gateway address",
+            "fr": "Adresse de la passerelle",
+            "de": "Gateway-Adresse",
+            "es": "Dirección de la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "gateway_online",
+      "label": {
+        "en": "The gateway answers again",
+        "fr": "La passerelle répond de nouveau",
+        "de": "Das Gateway antwortet wieder",
+        "es": "La pasarela vuelve a responder"
+      },
+      "description": {
+        "en": "The gateway is reached again after it stopped answering.",
+        "fr": "La passerelle est de nouveau joignable après une coupure.",
+        "de": "Das Gateway ist nach einem Ausfall wieder erreichbar.",
+        "es": "La pasarela vuelve a estar accesible tras un corte."
+      },
+      "variables": [
+        {
+          "key": "address",
+          "type": "string",
+          "label": {
+            "en": "Gateway address",
+            "fr": "Adresse de la passerelle",
+            "de": "Gateway-Adresse",
+            "es": "Dirección de la pasarela"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "set_room_override",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Impose a room setpoint",
+        "fr": "Imposer une consigne ambiante",
+        "de": "Raum-Sollwert vorgeben",
+        "es": "Imponer una consigna ambiente"
+      },
+      "description": {
+        "en": "The gateway imposes this setpoint on the thermostat (5 to 30 °C).",
+        "fr": "La passerelle impose cette consigne au thermostat (5 à 30 °C).",
+        "de": "Das Gateway gibt dem Thermostat diesen Sollwert vor (5 bis 30 °C).",
+        "es": "La pasarela impone esta consigna al termostato (5 a 30 °C)."
+      },
+      "fields": [
+        {
+          "key": "temperature",
+          "type": "number",
+          "required": true,
+          "min": 5,
+          "max": 30,
+          "label": {
+            "en": "Setpoint (°C)",
+            "fr": "Consigne (°C)",
+            "de": "Sollwert (°C)",
+            "es": "Consigna (°C)"
+          }
+        },
+        {
+          "key": "mode",
+          "type": "select",
+          "required": false,
+          "default": "temporary",
+          "label": {
+            "en": "Duration",
+            "fr": "Durée",
+            "de": "Dauer",
+            "es": "Duración"
+          },
+          "options": [
+            {
+              "value": "temporary",
+              "label": {
+                "en": "Until the next program change",
+                "fr": "Jusqu’au prochain changement de programme",
+                "de": "Bis zur nächsten Programmänderung",
+                "es": "Hasta el próximo cambio de programa"
+              }
+            },
+            {
+              "value": "constant",
+              "label": {
+                "en": "Until cancelled",
+                "fr": "Jusqu’à annulation",
+                "de": "Bis zur Aufhebung",
+                "es": "Hasta que se anule"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Value accepted by the gateway",
+            "fr": "Valeur acceptée par la passerelle",
+            "de": "Vom Gateway übernommener Wert",
+            "es": "Valor aceptado por la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "cancel_room_override",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Give the thermostat its program back",
+        "fr": "Rendre la main au programme du thermostat",
+        "de": "Thermostat wieder seinem Programm folgen lassen",
+        "es": "Devolver el termostato a su programa"
+      },
+      "description": {
+        "en": "Ends a setpoint imposed by Gladys.",
+        "fr": "Annule une consigne imposée par Gladys.",
+        "de": "Beendet einen von Gladys vorgegebenen Sollwert.",
+        "es": "Anula una consigna impuesta por Gladys."
+      },
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Value accepted by the gateway",
+            "fr": "Valeur acceptée par la passerelle",
+            "de": "Vom Gateway übernommener Wert",
+            "es": "Valor aceptado por la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_outside_temperature",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Send the outside temperature",
+        "fr": "Envoyer la température extérieure",
+        "de": "Außentemperatur senden",
+        "es": "Enviar la temperatura exterior"
+      },
+      "description": {
+        "en": "Tells the thermostat the outside temperature (from a Gladys sensor or a weather service), for weather compensation.",
+        "fr": "Donne au thermostat la température extérieure (d’un capteur Gladys ou d’un service météo), pour la régulation climatique.",
+        "de": "Teilt dem Thermostat die Außentemperatur mit (von einem Gladys-Sensor oder Wetterdienst), für die witterungsgeführte Regelung.",
+        "es": "Indica al termostato la temperatura exterior (de un sensor de Gladys o un servicio meteorológico), para la regulación climática."
+      },
+      "fields": [
+        {
+          "key": "temperature",
+          "type": "number",
+          "required": true,
+          "min": -40,
+          "max": 64,
+          "label": {
+            "en": "Outside temperature (°C)",
+            "fr": "Température extérieure (°C)",
+            "de": "Außentemperatur (°C)",
+            "es": "Temperatura exterior (°C)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Value accepted by the gateway",
+            "fr": "Valeur acceptée par la passerelle",
+            "de": "Vom Gateway übernommener Wert",
+            "es": "Valor aceptado por la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "clear_outside_temperature",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Stop sending the outside temperature",
+        "fr": "Arrêter d’envoyer la température extérieure",
+        "de": "Senden der Außentemperatur beenden",
+        "es": "Dejar de enviar la temperatura exterior"
+      },
+      "description": {
+        "en": "The thermostat uses its own sensor again, or none.",
+        "fr": "Le thermostat reprend sa propre sonde, ou aucune.",
+        "de": "Der Thermostat nutzt wieder seinen eigenen Fühler oder keinen.",
+        "es": "El termostato vuelve a usar su propia sonda, o ninguna."
+      },
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Value accepted by the gateway",
+            "fr": "Valeur acceptée par la passerelle",
+            "de": "Vom Gateway übernommener Wert",
+            "es": "Valor aceptado por la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_hot_water",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Set the hot water",
+        "fr": "Régler l’eau chaude",
+        "de": "Warmwasser einstellen",
+        "es": "Ajustar el agua caliente"
+      },
+      "description": {
+        "en": "Keep hot water on or off, or let the thermostat decide again.",
+        "fr": "Garder l’eau chaude en marche ou à l’arrêt, ou rendre la main au thermostat.",
+        "de": "Warmwasser ein- oder ausgeschaltet halten oder wieder dem Thermostat überlassen.",
+        "es": "Mantener el agua caliente encendida o apagada, o dejar que decida el termostato."
+      },
+      "fields": [
+        {
+          "key": "mode",
+          "type": "select",
+          "required": true,
+          "label": {
+            "en": "Hot water",
+            "fr": "Eau chaude",
+            "de": "Warmwasser",
+            "es": "Agua caliente"
+          },
+          "options": [
+            {
+              "value": "on",
+              "label": {
+                "en": "On",
+                "fr": "Marche",
+                "de": "Ein",
+                "es": "Encendido"
+              }
+            },
+            {
+              "value": "off",
+              "label": {
+                "en": "Off",
+                "fr": "Arrêt",
+                "de": "Aus",
+                "es": "Apagado"
+              }
+            },
+            {
+              "value": "thermostat",
+              "label": {
+                "en": "As the thermostat decides",
+                "fr": "Selon le thermostat",
+                "de": "Wie der Thermostat entscheidet",
+                "es": "Según el termostato"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Value accepted by the gateway",
+            "fr": "Valeur acceptée par la passerelle",
+            "de": "Vom Gateway übernommener Wert",
+            "es": "Valor aceptado por la pasarela"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_max_flow_temperature",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Set the maximum flow temperature",
+        "fr": "Régler la température de départ maximale",
+        "de": "Maximale Vorlauftemperatur einstellen",
+        "es": "Ajustar la temperatura de impulsión máxima"
+      },
+      "description": {
+        "en": "The highest heating water temperature the boiler may reach (20 to 90 °C, 0 = as the thermostat decides). Kept by the gateway: at most once a minute.",
+        "fr": "La température d’eau de chauffage la plus haute que la chaudière peut atteindre (20 à 90 °C, 0 = selon le thermostat). Gardée par la passerelle : au plus une fois par minute.",
+        "de": "Die höchste Heizwassertemperatur, die der Kessel erreichen darf (20 bis 90 °C, 0 = wie der Thermostat entscheidet). Vom Gateway gespeichert: höchstens einmal pro Minute.",
+        "es": "La temperatura más alta del agua de calefacción que puede alcanzar la caldera (20 a 90 °C, 0 = según el termostato). La guarda la pasarela: como máximo una vez por minuto."
+      },
+      "fields": [
+        {
+          "key": "temperature",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 90,
+          "label": {
+            "en": "Maximum flow temperature (°C)",
+            "fr": "Température de départ maximale (°C)",
+            "de": "Maximale Vorlauftemperatur (°C)",
+            "es": "Temperatura de impulsión máxima (°C)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "result",
+          "type": "string",
+          "label": {
+            "en": "Value accepted by the gateway",
+            "fr": "Valeur acceptée par la passerelle",
+            "de": "Vom Gateway übernommener Wert",
+            "es": "Valor aceptado por la pasarela"
+          }
+        }
+      ]
+    }
+  ]
+}

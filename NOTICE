@@ -1,0 +1,18 @@
+gladys-opentherm-gateway
+Copyright 2026 William-De71
+
+This product includes software developed by William-De71
+(https://github.com/William-De71/gladys-opentherm-gateway), licensed under the
+Apache License, Version 2.0.
+
+The OpenTherm Gateway client (src/otgw/) was written in JavaScript for this
+project, from the firmware documentation of the OpenTherm Gateway by Schelte
+Bron (https://otgw.tclcode.com/firmware.html: line format, commands, error
+codes) and from the message layout and data ids of the OpenTherm 2.2
+specification. No code was copied from the gateway firmware, OTmonitor, the
+NodoShop OTGW-firmware or the Home Assistant library pyotgw.
+
+OpenTherm is a trademark of the OpenTherm Association. The OpenTherm Gateway
+is a design of Schelte Bron; NodoShop sells boards running it. This
+integration is not affiliated with, endorsed or supported by the OpenTherm
+Association, Schelte Bron, NodoShop or any boiler or thermostat manufacturer.

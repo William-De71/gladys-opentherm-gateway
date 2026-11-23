@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500" viewBox="0 0 1000 500" font-family="Inter, 'DejaVu Sans', Arial, sans-serif">
+  <title>Architecture of the OpenTherm Gateway integration for Gladys Assistant (illustration)</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#46505a"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="500" fill="#ffffff"/>
+  <text x="980" y="492" text-anchor="end" font-size="12" fill="#8a949e">illustration</text>
+
+  <!-- Gladys -->
+  <rect x="20" y="40" width="230" height="320" rx="14" fill="#eef4fb" stroke="#2979d6" stroke-width="2"/>
+  <text x="135" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#1d5fae">Gladys Assistant</text>
+  <g font-size="13.5" fill="#24303c">
+    <rect x="38" y="90" width="194" height="34" rx="8" fill="#ffffff" stroke="#bcd3ee"/>
+    <text x="135" y="112" text-anchor="middle">Boiler device</text>
+    <rect x="38" y="132" width="194" height="34" rx="8" fill="#ffffff" stroke="#bcd3ee"/>
+    <text x="135" y="154" text-anchor="middle">Room thermostat device</text>
+    <rect x="38" y="174" width="194" height="34" rx="8" fill="#ffffff" stroke="#bcd3ee"/>
+    <text x="135" y="196" text-anchor="middle">Setpoint, hot water</text>
+    <rect x="38" y="216" width="194" height="34" rx="8" fill="#ffffff" stroke="#bcd3ee"/>
+    <text x="135" y="238" text-anchor="middle">Scenes: triggers, actions</text>
+    <rect x="38" y="258" width="194" height="52" rx="8" fill="#ffffff" stroke="#bcd3ee"/>
+    <text x="135" y="280" text-anchor="middle">Widgets: boiler,</text>
+    <text x="135" y="298" text-anchor="middle">boiler curves</text>
+  </g>
+
+  <!-- Gladys <-> container -->
+  <line x1="254" y1="200" x2="356" y2="200" stroke="#46505a" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <g font-size="11" fill="#46505a" text-anchor="middle">
+    <text x="305" y="172">REST</text>
+    <text x="305" y="188">/api/integration/v1</text>
+    <text x="305" y="222">+ WebSocket</text>
+  </g>
+
+  <!-- Container -->
+  <rect x="360" y="40" width="270" height="320" rx="14" fill="#f4f6f8" stroke="#46505a" stroke-width="2"/>
+  <text x="495" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#24303c">Integration container</text>
+  <g font-size="13.5" fill="#24303c">
+    <rect x="378" y="90" width="234" height="34" rx="8" fill="#ffffff" stroke="#cfd6dd"/>
+    <text x="495" y="112" text-anchor="middle">Node.js + Gladys SDK</text>
+    <rect x="378" y="132" width="234" height="52" rx="8" fill="#ffffff" stroke="#cfd6dd"/>
+    <text x="495" y="154" text-anchor="middle">src/otgw/: message lines,</text>
+    <text x="495" y="172" text-anchor="middle">one command at a time</text>
+    <rect x="378" y="192" width="234" height="52" rx="8" fill="#fff7ec" stroke="#f0b35c"/>
+    <text x="495" y="214" text-anchor="middle">commands within bounds,</text>
+    <text x="495" y="232" text-anchor="middle">refused in monitor mode</text>
+    <rect x="378" y="252" width="234" height="52" rx="8" fill="#ffffff" stroke="#cfd6dd"/>
+    <text x="495" y="274" text-anchor="middle">/data: OpenTherm</text>
+    <text x="495" y="292" text-anchor="middle">data ids seen</text>
+  </g>
+  <text x="495" y="340" text-anchor="middle" font-size="12.5" fill="#6b7580">read-only rootfs, 256 MB, non-root</text>
+
+  <!-- container <-> gateway -->
+  <line x1="634" y1="200" x2="736" y2="200" stroke="#2e8b57" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <g font-size="12.5" fill="#2e8b57" text-anchor="middle">
+    <text x="685" y="172">TCP 25238</text>
+    <text x="685" y="188">or ser2net</text>
+    <text x="685" y="222">lines T, B, R, A</text>
+    <text x="685" y="238">TT, SW, HW…</text>
+  </g>
+
+  <!-- Gateway -->
+  <rect x="740" y="40" width="240" height="320" rx="14" fill="#f0f7f1" stroke="#2e8b57" stroke-width="2"/>
+  <text x="860" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#22703f">OpenTherm Gateway</text>
+  <g font-size="13.5" fill="#24303c" text-anchor="middle">
+    <rect x="762" y="92" width="196" height="40" rx="8" fill="#ffffff" stroke="#b7dcc2"/>
+    <text x="860" y="117">Room thermostat</text>
+    <text x="860" y="156">OpenTherm wires</text>
+    <rect x="762" y="168" width="196" height="64" rx="8" fill="#ffffff" stroke="#2e8b57"/>
+    <text x="860" y="192">OTGW (NodoShop board,</text>
+    <text x="860" y="210">USB or serial)</text>
+    <text x="860" y="256">OpenTherm wires</text>
+    <rect x="762" y="268" width="196" height="40" rx="8" fill="#ffffff" stroke="#b7dcc2"/>
+    <text x="860" y="293">Boiler</text>
+    <text x="860" y="336" font-size="12.5" fill="#6b7580">gateway or monitor mode</text>
+  </g>
+
+  <g font-size="13" fill="#46505a">
+    <text x="20" y="400">The integration talks to the gateway on the local network: no account, no cloud, nothing leaves the house.</text>
+    <text x="20" y="424">The gateway prints every message between thermostat and boiler; the values exchanged become the features.</text>
+    <text x="20" y="448">Commands change the room setpoint and the hot water, within fixed bounds, only in gateway mode.</text>
+  </g>
+</svg>
